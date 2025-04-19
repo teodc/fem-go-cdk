@@ -56,7 +56,7 @@ func NewFemGoCdkStack(scope constructs.Construct, id string, props *FemGoCdkStac
 	// Integrate Lambda with API Gateway
 	lambdaIntegration := awsapigateway.NewLambdaIntegration(lambdaFunction, nil)
 
-	// Create the API Gateway /users resources & methods
+	// Create the API Gateway resources & methods
 	usersResource := api.Root().AddResource(jsii.String("users"), nil)
 	// - /users/register
 	usersRegisterResource := usersResource.AddResource(jsii.String("register"), nil)

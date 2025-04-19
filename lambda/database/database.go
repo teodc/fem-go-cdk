@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"lambda/types"
 )
 
@@ -16,6 +17,7 @@ const (
 type UserStore interface {
 	DoesUserExist(username string) (bool, error)
 	PersistUser(user *types.User) error
+	GetUser(username string) (*types.User, error)
 }
 
 type DynamoDBStore struct {
@@ -73,4 +75,32 @@ func (store *DynamoDBStore) PersistUser(user *types.User) error {
 	}
 
 	return nil
+}
+
+func (store *DynamoDBStore) GetUser(username string) (*types.User, error) {
+	itemInput := &dynamodb.GetItemInput{
+		TableName: aws.String(UserTableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			UserUsernameKey: {
+				S: aws.String(username),
+			},
+		},
+	}
+
+	res, err := store.client.GetItem(itemInput)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Item == nil {
+		return nil, nil
+	}
+
+	var user types.User
+	err = dynamodbattribute.UnmarshalMap(res.Item, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

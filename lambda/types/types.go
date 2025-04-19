@@ -10,12 +10,29 @@ type RegisterUserPayload struct {
 	Password string `json:"password"`
 }
 
+type LoginUserPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type User struct {
 	Username     string `json:"username"`
 	PasswordHash string `json:"password"`
 }
 
 func (payload *RegisterUserPayload) IsValid() error {
+	if payload.Username == "" {
+		return fmt.Errorf("missing username")
+	}
+
+	if payload.Password == "" {
+		return fmt.Errorf("missing password")
+	}
+
+	return nil
+}
+
+func (payload *LoginUserPayload) IsValid() error {
 	if payload.Username == "" {
 		return fmt.Errorf("missing username")
 	}
