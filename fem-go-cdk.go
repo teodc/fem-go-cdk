@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
@@ -20,11 +21,24 @@ func NewFemGoCdkStack(scope constructs.Construct, id string, props *FemGoCdkStac
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	awslambda.NewFunction(stack, jsii.String("FemGoCdkFunction"), &awslambda.FunctionProps{
-		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
-		Code:    awslambda.AssetCode_FromAsset(jsii.String("lambda/func.zip"), nil),
-		Handler: jsii.String("main"),
+	// Create the DynamoDB table
+	dynamoDBTable := awsdynamodb.NewTable(stack, jsii.String("FemGoCdkTable"), &awsdynamodb.TableProps{
+		TableName: jsii.String("FemGoCdkUsers"),
+		PartitionKey: &awsdynamodb.Attribute{
+			Name: jsii.String("username"),
+			Type: awsdynamodb.AttributeType_STRING,
+		},
 	})
+
+	// Create the Lambda function
+	lambdaFunction := awslambda.NewFunction(stack, jsii.String("FemGoCdkFunction"), &awslambda.FunctionProps{
+		FunctionName: jsii.String("FemGoCdkRegisterUser"),
+		Runtime:      awslambda.Runtime_PROVIDED_AL2023(),
+		Code:         awslambda.AssetCode_FromAsset(jsii.String("lambda/func.zip"), nil),
+		Handler:      jsii.String("main"),
+	})
+
+	dynamoDBTable.GrantReadWriteData(lambdaFunction)
 
 	return stack
 }
