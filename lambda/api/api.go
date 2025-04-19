@@ -17,19 +17,25 @@ func NewUserHandler(store database.UserStore) *UserHandler {
 }
 
 func (handler *UserHandler) RegisterUser(payload *types.RegisterUserPayload) error {
-	if payload.Username == "" || payload.Password == "" {
-		return fmt.Errorf("missing username or password")
+	err := payload.IsValid()
+	if err != nil {
+		return fmt.Errorf("user registration payload not valid: %w", err)
 	}
 
-	userAlreadyExists, err := handler.store.DoesUserExist(payload.Username)
+	exists, err := handler.store.DoesUserExist(payload.Username)
 	if err != nil {
 		return fmt.Errorf("error while checking user existence: %w", err)
 	}
-	if userAlreadyExists {
+	if exists {
 		return fmt.Errorf("user already exists")
 	}
 
-	err = handler.store.CreateUser(payload.Username, payload.Password)
+	user, err := types.NewUser(payload)
+	if err != nil {
+		return err
+	}
+
+	err = handler.store.PersistUser(user)
 	if err != nil {
 		return fmt.Errorf("error while creating user: %w", err)
 	}

@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"lambda/types"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 
 type UserStore interface {
 	DoesUserExist(username string) (bool, error)
-	CreateUser(username, password string) error
+	PersistUser(user *types.User) error
 }
 
 type DynamoDBStore struct {
@@ -53,18 +54,15 @@ func (store *DynamoDBStore) DoesUserExist(username string) (bool, error) {
 	return true, nil
 }
 
-func (store *DynamoDBStore) CreateUser(username, password string) error {
-	// In a real app, actually hash the password
-	passwordHash := password
-
+func (store *DynamoDBStore) PersistUser(user *types.User) error {
 	itemInput := &dynamodb.PutItemInput{
 		TableName: aws.String(UserTableName),
 		Item: map[string]*dynamodb.AttributeValue{
 			UserUsernameKey: {
-				S: aws.String(username),
+				S: aws.String(user.Username),
 			},
 			UserPasswordKey: {
-				S: aws.String(passwordHash),
+				S: aws.String(user.PasswordHash),
 			},
 		},
 	}
