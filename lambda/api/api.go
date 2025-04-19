@@ -6,22 +6,22 @@ import (
 	"lambda/types"
 )
 
-type Handler struct {
-	dbClient *database.DynamoDBClient
+type UserHandler struct {
+	store database.UserStore
 }
 
-func NewApiHandler(dbClient *database.DynamoDBClient) *Handler {
-	return &Handler{
-		dbClient: dbClient,
+func NewUserHandler(store database.UserStore) *UserHandler {
+	return &UserHandler{
+		store: store,
 	}
 }
 
-func (h *Handler) RegisterUser(payload *types.RegisterUserPayload) error {
+func (handler *UserHandler) RegisterUser(payload *types.RegisterUserPayload) error {
 	if payload.Username == "" || payload.Password == "" {
 		return fmt.Errorf("missing username or password")
 	}
 
-	userAlreadyExists, err := h.dbClient.DoesUserExist(payload.Username)
+	userAlreadyExists, err := handler.store.DoesUserExist(payload.Username)
 	if err != nil {
 		return fmt.Errorf("error while checking user existence: %w", err)
 	}
@@ -29,7 +29,7 @@ func (h *Handler) RegisterUser(payload *types.RegisterUserPayload) error {
 		return fmt.Errorf("user already exists")
 	}
 
-	err = h.dbClient.CreateUser(payload.Username, payload.Password)
+	err = handler.store.CreateUser(payload.Username, payload.Password)
 	if err != nil {
 		return fmt.Errorf("error while creating user: %w", err)
 	}

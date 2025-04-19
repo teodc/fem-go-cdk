@@ -12,19 +12,24 @@ const (
 	UserPasswordKey = "password"
 )
 
-type DynamoDBClient struct {
+type UserStore interface {
+	DoesUserExist(username string) (bool, error)
+	CreateUser(username, password string) error
+}
+
+type DynamoDBStore struct {
 	session *session.Session
 	client  *dynamodb.DynamoDB
 }
 
-func NewDynamoDBClient() *DynamoDBClient {
-	return &DynamoDBClient{
+func NewDynamoDBStore() *DynamoDBStore {
+	return &DynamoDBStore{
 		session: session.Must(session.NewSession()),
 		client:  dynamodb.New(session.Must(session.NewSession())),
 	}
 }
 
-func (db *DynamoDBClient) DoesUserExist(username string) (bool, error) {
+func (store *DynamoDBStore) DoesUserExist(username string) (bool, error) {
 	itemInput := &dynamodb.GetItemInput{
 		TableName: aws.String(UserTableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -34,7 +39,7 @@ func (db *DynamoDBClient) DoesUserExist(username string) (bool, error) {
 		},
 	}
 
-	res, err := db.client.GetItem(itemInput)
+	res, err := store.client.GetItem(itemInput)
 	if err != nil {
 		return false, err
 	}
@@ -48,7 +53,7 @@ func (db *DynamoDBClient) DoesUserExist(username string) (bool, error) {
 	return true, nil
 }
 
-func (db *DynamoDBClient) CreateUser(username, password string) error {
+func (store *DynamoDBStore) CreateUser(username, password string) error {
 	// In a real app, actually hash the password
 	passwordHash := password
 
@@ -64,7 +69,7 @@ func (db *DynamoDBClient) CreateUser(username, password string) error {
 		},
 	}
 
-	_, err := db.client.PutItem(itemInput)
+	_, err := store.client.PutItem(itemInput)
 	if err != nil {
 		return err
 	}

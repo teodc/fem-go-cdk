@@ -7,6 +7,6 @@ import (
 
 func main() {
 	newApp := app.NewApp()
-	handler := newApp.ApiHandler.RegisterUser
+	handler := newApp.ApiUserHandler.RegisterUser
 	lambda.Start(handler)
 }
