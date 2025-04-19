@@ -2,10 +2,9 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
-
-	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -32,13 +31,39 @@ func NewFemGoCdkStack(scope constructs.Construct, id string, props *FemGoCdkStac
 
 	// Create the Lambda function
 	lambdaFunction := awslambda.NewFunction(stack, jsii.String("FemGoCdkFunction"), &awslambda.FunctionProps{
-		FunctionName: jsii.String("FemGoCdkRegisterUser"),
+		FunctionName: jsii.String("FemGoCdkManageUsers"),
 		Runtime:      awslambda.Runtime_PROVIDED_AL2023(),
 		Code:         awslambda.AssetCode_FromAsset(jsii.String("lambda/func.zip"), nil),
 		Handler:      jsii.String("main"),
 	})
 
+	// Allow the Lambda function to read/write to the DynamoDB table
 	dynamoDBTable.GrantReadWriteData(lambdaFunction)
+
+	// Create the API Gateway REST API
+	api := awsapigateway.NewRestApi(stack, jsii.String("FemGoCdkRestApi"), &awsapigateway.RestApiProps{
+		RestApiName: jsii.String("FemGoCdkUserApi"),
+		DefaultCorsPreflightOptions: &awsapigateway.CorsOptions{
+			AllowHeaders: jsii.Strings("Content-Type", "Authorization"),
+			AllowMethods: jsii.Strings("GET", "POST", "PUT", "DELETE", "OPTIONS"),
+			AllowOrigins: jsii.Strings("*"),
+		},
+		DeployOptions: &awsapigateway.StageOptions{
+			LoggingLevel: awsapigateway.MethodLoggingLevel_INFO,
+		},
+	})
+
+	// Integrate Lambda with API Gateway
+	lambdaIntegration := awsapigateway.NewLambdaIntegration(lambdaFunction, nil)
+
+	// Create the API Gateway /users resources & methods
+	usersResource := api.Root().AddResource(jsii.String("users"), nil)
+	// - /users/register
+	usersRegisterResource := usersResource.AddResource(jsii.String("register"), nil)
+	usersRegisterResource.AddMethod(jsii.String("POST"), lambdaIntegration, nil)
+	// - /users/login
+	usersLoginResource := usersResource.AddResource(jsii.String("login"), nil)
+	usersLoginResource.AddMethod(jsii.String("POST"), lambdaIntegration, nil)
 
 	return stack
 }
