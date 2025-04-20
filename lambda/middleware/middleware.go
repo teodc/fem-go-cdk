@@ -36,7 +36,7 @@ func ValidateJWT(next func(req *events.APIGatewayProxyRequest) (*events.APIGatew
 			}, fmt.Errorf("invalid JWT claims")
 		}
 
-		expires := claims["expires"].(int64)
+		expires := int64(claims["expires"].(float64))
 		if expires < time.Now().Unix() {
 			return &events.APIGatewayProxyResponse{
 				StatusCode: http.StatusUnauthorized,
