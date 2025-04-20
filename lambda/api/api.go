@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
+	"lambda/auth"
 	"lambda/database"
 	"lambda/types"
 	"net/http"
@@ -115,8 +116,16 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 		}, nil
 	}
 
+	accessToken, err := auth.MakeJWTToken(user)
+	if err != nil {
+		return &events.APIGatewayProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       "{ \"ok\": false, \"message\": \"error while generating JWT token\" }",
+		}, fmt.Errorf("error while generating JWT token: %w", err)
+	}
+
 	return &events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
-		Body:       "{ \"ok\": true, \"message\": \"user logged in\" }",
+		Body:       fmt.Sprintf("{ \"ok\": true, \"message\": \"user logged in\", \"access_token\": \"%s\" }", accessToken),
 	}, nil
 }

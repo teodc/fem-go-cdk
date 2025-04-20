@@ -64,6 +64,9 @@ func NewFemGoCdkStack(scope constructs.Construct, id string, props *FemGoCdkStac
 	// - /users/login
 	usersLoginResource := usersResource.AddResource(jsii.String("login"), nil)
 	usersLoginResource.AddMethod(jsii.String("POST"), lambdaIntegration, nil)
+	// - /users/protected
+	usersProtectedResource := usersResource.AddResource(jsii.String("protected"), nil)
+	usersProtectedResource.AddMethod(jsii.String("GET"), lambdaIntegration, nil)
 
 	return stack
 }
