@@ -18,7 +18,7 @@ func main() {
 		default:
 			return &events.APIGatewayProxyResponse{
 				StatusCode: http.StatusNotFound,
-				Body:       "Not Found",
+				Body:       "{ \"ok\": false, \"message\": \" route not found\" }",
 			}, nil
 		}
 	}

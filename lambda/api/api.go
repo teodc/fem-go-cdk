@@ -26,7 +26,7 @@ func (handler *UserHandler) RegisterUser(req *events.APIGatewayProxyRequest) (*e
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
-			Body:       fmt.Sprintf("error while parsing request body"),
+			Body:       "{ \"ok\": false, \"message\": \"error while parsing request body\" }",
 		}, fmt.Errorf("error while parsing request body: %w", err)
 	}
 
@@ -34,7 +34,7 @@ func (handler *UserHandler) RegisterUser(req *events.APIGatewayProxyRequest) (*e
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusUnprocessableEntity,
-			Body:       fmt.Sprintf("error while validating request"),
+			Body:       "{ \"ok\": false, \"message\": \"error while validating request\" }",
 		}, fmt.Errorf("error while validating request: %w", err)
 	}
 
@@ -42,13 +42,13 @@ func (handler *UserHandler) RegisterUser(req *events.APIGatewayProxyRequest) (*e
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
-			Body:       fmt.Sprintf("error while checking if user exists"),
+			Body:       "{ \"ok\": false, \"message\": \"error while checking if user exists\" }",
 		}, fmt.Errorf("error while checking if user exists: %w", err)
 	}
 	if exists {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusConflict,
-			Body:       fmt.Sprintf("user [%s] already exists", payload.Username),
+			Body:       "{ \"ok\": false, \"message\": \"user already exists\" }",
 		}, nil
 	}
 
@@ -56,7 +56,7 @@ func (handler *UserHandler) RegisterUser(req *events.APIGatewayProxyRequest) (*e
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
-			Body:       fmt.Sprintf("error while creating user"),
+			Body:       "{ \"ok\": false, \"message\": \"error while creating user\" }",
 		}, fmt.Errorf("error while creating user: %w", err)
 	}
 
@@ -64,13 +64,13 @@ func (handler *UserHandler) RegisterUser(req *events.APIGatewayProxyRequest) (*e
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
-			Body:       fmt.Sprintf("error while persisting user"),
+			Body:       "{ \"ok\": false, \"message\": \"error while persisting user\" }",
 		}, fmt.Errorf("error while persisting user: %w", err)
 	}
 
 	return &events.APIGatewayProxyResponse{
 		StatusCode: http.StatusCreated,
-		Body:       fmt.Sprintf("user [%s] registered", user.Username),
+		Body:       "{ \"ok\": true, \"message\": \"user registered\" }",
 	}, nil
 }
 
@@ -81,7 +81,7 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
-			Body:       fmt.Sprintf("error while parsing request body"),
+			Body:       "{ \"ok\": false, \"message\": \"error while parsing request body\" }",
 		}, fmt.Errorf("error while parsing request body: %w", err)
 	}
 
@@ -89,7 +89,7 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusUnprocessableEntity,
-			Body:       fmt.Sprintf("error while validating request"),
+			Body:       "{ \"ok\": false, \"message\": \"error while validating request\" }",
 		}, fmt.Errorf("error while validating request: %w", err)
 	}
 
@@ -97,13 +97,13 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
-			Body:       fmt.Sprintf("error while getting user"),
+			Body:       "{ \"ok\": false, \"message\": \"error while getting user\" }",
 		}, fmt.Errorf("error while getting user: %w", err)
 	}
 	if user == nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusNotFound,
-			Body:       fmt.Sprintf("user [%s] does not exist", payload.Username),
+			Body:       "{ \"ok\": false, \"message\": \"user not found\" }",
 		}, nil
 	}
 
@@ -111,12 +111,12 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 	if !passwordMatches {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusUnauthorized,
-			Body:       fmt.Sprintf("invalid credentials"),
+			Body:       "{ \"ok\": false, \"message\": \"invalid credentials\" }",
 		}, nil
 	}
 
 	return &events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
-		Body:       fmt.Sprintf("user [%s] logged in", user.Username),
+		Body:       "{ \"ok\": true, \"message\": \"user logged in\" }",
 	}, nil
 }
