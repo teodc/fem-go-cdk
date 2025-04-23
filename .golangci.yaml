@@ -1,0 +1,53 @@
+version: "2"
+linters:
+    default: none
+    enable:
+        - errcheck
+        # - govet
+        # - revive
+        - staticcheck
+    # linters-settings:
+    #     revive:
+    #         ignore-generated-header: true
+    #         severity: warning
+    #         confidence: 0.8
+    #         errorCode: 0
+    #         warningCode: 0
+    #         rules:
+    #             - name: blank-imports
+    #             - name: context-as-argument
+    #             - name: context-keys-type
+    #             - name: dot-imports
+    #             - name: empty-block
+    #             - name: error-naming
+    #             - name: error-return
+    #             - name: error-strings
+    #             - name: errorf
+    #             - name: exported
+    #             - name: if-return
+    #             - name: increment-decrement
+    #             - name: indent-error-flow
+    #             - name: line-length-limit
+    #               severity: error
+    #               arguments: [120]
+    #             - name: package-comments
+    #             - name: range
+    #             - name: receiver-naming
+    #             - name: redefines-builtin-id
+    #             - name: superfluous-else
+    #             - name: time-naming
+    #             - name: unexported-return
+    #             - name: unreachable-code
+    #             - name: unused-parameter
+    #             - name: var-declaration
+    #             - name: var-naming
+formatters:
+    enable:
+        # - gofmt
+        - gofumpt
+        # - goimports
+issues:
+    exclude_dirs:
+        - vendor
+output:
+    format: colored-text

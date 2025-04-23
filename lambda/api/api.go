@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-lambda-go/events"
 	"lambda/auth"
 	"lambda/database"
 	"lambda/types"
 	"net/http"
+
+	"github.com/aws/aws-lambda-go/events"
 )
 
 type UserHandler struct {
@@ -116,7 +117,7 @@ func (handler *UserHandler) LoginUser(req *events.APIGatewayProxyRequest) (*even
 		}, nil
 	}
 
-	accessToken, err := auth.MakeJWTToken(user)
+	accessToken, err := auth.MakeJWTToken(user.Username)
 	if err != nil {
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,

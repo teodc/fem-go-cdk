@@ -2,18 +2,18 @@ package auth
 
 import (
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"lambda/types"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (
 	secret = "th3s3cr3t" // TODO: get from env
 )
 
-func MakeJWTToken(user *types.User) (string, error) {
+func MakeJWTToken(username string) (string, error) {
 	claims := jwt.MapClaims{
-		"user":    user.Username,
+		"user":    username,
 		"expires": time.Now().Add(time.Hour * 1).Unix(), // valid for 1 hour
 	}
 
