@@ -3,10 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"lambda/auth"
 	"lambda/database"
 	"lambda/types"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 )

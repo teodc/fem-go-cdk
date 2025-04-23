@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/golang-jwt/jwt/v5"
-	"lambda/auth"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/golang-jwt/jwt/v5"
+	"lambda/auth"
 )
 
 func ValidateJWT(next func(req *events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error)) func(req *events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {

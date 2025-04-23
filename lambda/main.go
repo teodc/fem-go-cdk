@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"lambda/app"
 	"lambda/middleware"
-	"net/http"
 )
 
 func ProtectedHandlerTest(req *events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
